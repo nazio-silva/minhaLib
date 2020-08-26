@@ -1,3 +1,6 @@
 rootProject.name='SdkExample'
 include ':app'
 include ':sdklibrary'
+include ':app:bulbsupport-beacon'
+include ':bulbsupport-beacon'
+include ':mokosupport-beaconx'
