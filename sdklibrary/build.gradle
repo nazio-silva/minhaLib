@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.2"
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 18
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -36,4 +36,5 @@ dependencies {
     api 'no.nordicsemi.android:dfu:0.6.2'
     //noinspection GradleCompatible
     implementation 'com.android.support:support-compat:28.0.0'
+    // project(path: ':app')
 }

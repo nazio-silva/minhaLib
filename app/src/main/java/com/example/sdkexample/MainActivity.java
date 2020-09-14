@@ -4,8 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-import com.bulb.support.beacon.entity.DeviceInfo;
-import com.bulb.support.beacon.log.LogModule;
+import com.BulbMain;
 import com.example.sdklibrary.ToastMessage;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,9 +16,12 @@ public class MainActivity extends AppCompatActivity {
 
         ToastMessage.s(MainActivity.this, "Minha biblioteca...");
 
-        LogModule.d("Executando funcao LogModule...");
+        BulbMain obj = new BulbMain(MainActivity.this);
+        obj.onStartScan();
 
+    }
 
-
+    protected String getMainComponentName() {
+        return "sdkexample";
     }
 }
