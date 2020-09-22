@@ -18,7 +18,7 @@ import java.util.List;
  * @Date 2017/12/13 0013
  * @Author wenzheng.liu
  * @Description
- * @ClassPath com.moko.support.handler.MokoCharacteristicHandler
+ * @ClassPath com.bulb.support.handler.BulbCharacteristicHandler
  */
 public class BulbCharacteristicHandler {
     private static BulbCharacteristicHandler INSTANCE;
@@ -26,11 +26,11 @@ public class BulbCharacteristicHandler {
     public static final String SERVICE_UUID_HEADER_BATTERY = "0000180f";
     public static final String SERVICE_UUID_HEADER_SYSTEM = "0000180a";
     public static final String SERVICE_UUID_HEADER_PARAMS = "0000ff00";
-    public HashMap<OrderType, BulbCharacteristic> mokoCharacteristicMap;
+    public HashMap<OrderType, BulbCharacteristic> bulbCharacteristicMap;
 
     private BulbCharacteristicHandler() {
         //no instance
-        mokoCharacteristicMap = new HashMap<>();
+        bulbCharacteristicMap = new HashMap<>();
     }
 
     public static BulbCharacteristicHandler getInstance() {
@@ -46,8 +46,8 @@ public class BulbCharacteristicHandler {
 
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public HashMap<OrderType, BulbCharacteristic> getCharacteristics(BluetoothGatt gatt) {
-        if (mokoCharacteristicMap != null && !mokoCharacteristicMap.isEmpty()) {
-            mokoCharacteristicMap.clear();
+        if (bulbCharacteristicMap != null && !bulbCharacteristicMap.isEmpty()) {
+            bulbCharacteristicMap.clear();
         }
         List<BluetoothGattService> services = gatt.getServices();
         for (BluetoothGattService service : services) {
@@ -63,7 +63,7 @@ public class BulbCharacteristicHandler {
                         continue;
                     }
                     if (characteristicUuid.equals(OrderType.battery.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.battery, new BulbCharacteristic(characteristic, OrderType.battery));
+                        bulbCharacteristicMap.put(OrderType.battery, new BulbCharacteristic(characteristic, OrderType.battery));
                         continue;
                     }
                 }
@@ -76,32 +76,32 @@ public class BulbCharacteristicHandler {
                     }
                     // 软件版本
                     if (characteristicUuid.equals(OrderType.softVersion.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.softVersion, new BulbCharacteristic(characteristic, OrderType.softVersion));
+                        bulbCharacteristicMap.put(OrderType.softVersion, new BulbCharacteristic(characteristic, OrderType.softVersion));
                         continue;
                     }
                     // 厂商名称
                     if (characteristicUuid.equals(OrderType.firmname.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.firmname, new BulbCharacteristic(characteristic, OrderType.firmname));
+                        bulbCharacteristicMap.put(OrderType.firmname, new BulbCharacteristic(characteristic, OrderType.firmname));
                         continue;
                     }
                     // 设备名称
                     if (characteristicUuid.equals(OrderType.devicename.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.devicename, new BulbCharacteristic(characteristic, OrderType.devicename));
+                        bulbCharacteristicMap.put(OrderType.devicename, new BulbCharacteristic(characteristic, OrderType.devicename));
                         continue;
                     }
                     // 出厂日期
                     if (characteristicUuid.equals(OrderType.iBeaconDate.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.iBeaconDate, new BulbCharacteristic(characteristic, OrderType.iBeaconDate));
+                        bulbCharacteristicMap.put(OrderType.iBeaconDate, new BulbCharacteristic(characteristic, OrderType.iBeaconDate));
                         continue;
                     }
                     // 硬件版本号
                     if (characteristicUuid.equals(OrderType.hardwareVersion.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.hardwareVersion, new BulbCharacteristic(characteristic, OrderType.hardwareVersion));
+                        bulbCharacteristicMap.put(OrderType.hardwareVersion, new BulbCharacteristic(characteristic, OrderType.hardwareVersion));
                         continue;
                     }
                     // 固件版本号
                     if (characteristicUuid.equals(OrderType.firmwareVersion.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.firmwareVersion, new BulbCharacteristic(characteristic, OrderType.firmwareVersion));
+                        bulbCharacteristicMap.put(OrderType.firmwareVersion, new BulbCharacteristic(characteristic, OrderType.firmwareVersion));
                         continue;
                     }
                 }
@@ -115,73 +115,73 @@ public class BulbCharacteristicHandler {
                     // 写和通知
                     if (characteristicUuid.equals(OrderType.writeAndNotify.getUuid())) {
                         gatt.setCharacteristicNotification(characteristic, true);
-                        mokoCharacteristicMap.put(OrderType.writeAndNotify, new BulbCharacteristic(characteristic, OrderType.writeAndNotify));
+                        bulbCharacteristicMap.put(OrderType.writeAndNotify, new BulbCharacteristic(characteristic, OrderType.writeAndNotify));
                         continue;
                     }
                     // uuid
                     if (characteristicUuid.equals(OrderType.iBeaconUuid.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.iBeaconUuid, new BulbCharacteristic(characteristic, OrderType.iBeaconUuid));
+                        bulbCharacteristicMap.put(OrderType.iBeaconUuid, new BulbCharacteristic(characteristic, OrderType.iBeaconUuid));
                         continue;
                     }
                     // major
                     if (characteristicUuid.equals(OrderType.major.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.major, new BulbCharacteristic(characteristic, OrderType.major));
+                        bulbCharacteristicMap.put(OrderType.major, new BulbCharacteristic(characteristic, OrderType.major));
                         continue;
                     }
                     // minor
                     if (characteristicUuid.equals(OrderType.minor.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.minor, new BulbCharacteristic(characteristic, OrderType.minor));
+                        bulbCharacteristicMap.put(OrderType.minor, new BulbCharacteristic(characteristic, OrderType.minor));
                         continue;
                     }
                     // measure_power
                     if (characteristicUuid.equals(OrderType.measurePower.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.measurePower, new BulbCharacteristic(characteristic, OrderType.measurePower));
+                        bulbCharacteristicMap.put(OrderType.measurePower, new BulbCharacteristic(characteristic, OrderType.measurePower));
                         continue;
                     }
                     // transmission
                     if (characteristicUuid.equals(OrderType.transmission.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.transmission, new BulbCharacteristic(characteristic, OrderType.transmission));
+                        bulbCharacteristicMap.put(OrderType.transmission, new BulbCharacteristic(characteristic, OrderType.transmission));
                         continue;
                     }
                     // change_password
                     if (characteristicUuid.equals(OrderType.changePassword.getUuid())) {
                         gatt.setCharacteristicNotification(characteristic, true);
-                        mokoCharacteristicMap.put(OrderType.changePassword, new BulbCharacteristic(characteristic, OrderType.changePassword));
+                        bulbCharacteristicMap.put(OrderType.changePassword, new BulbCharacteristic(characteristic, OrderType.changePassword));
                         continue;
                     }
                     // broadcasting_interval
                     if (characteristicUuid.equals(OrderType.broadcastingInterval.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.broadcastingInterval, new BulbCharacteristic(characteristic, OrderType.broadcastingInterval));
+                        bulbCharacteristicMap.put(OrderType.broadcastingInterval, new BulbCharacteristic(characteristic, OrderType.broadcastingInterval));
                         continue;
                     }
                     // serial_id
                     if (characteristicUuid.equals(OrderType.serialID.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.serialID, new BulbCharacteristic(characteristic, OrderType.serialID));
+                        bulbCharacteristicMap.put(OrderType.serialID, new BulbCharacteristic(characteristic, OrderType.serialID));
                         continue;
                     }
                     // iBeacon_name
                     if (characteristicUuid.equals(OrderType.iBeaconName.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.iBeaconName, new BulbCharacteristic(characteristic, OrderType.iBeaconName));
+                        bulbCharacteristicMap.put(OrderType.iBeaconName, new BulbCharacteristic(characteristic, OrderType.iBeaconName));
                         continue;
                     }
                     // connection_mode
                     if (characteristicUuid.equals(OrderType.connectionMode.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.connectionMode, new BulbCharacteristic(characteristic, OrderType.connectionMode));
+                        bulbCharacteristicMap.put(OrderType.connectionMode, new BulbCharacteristic(characteristic, OrderType.connectionMode));
                         continue;
                     }
                     // soft_reboot
                     if (characteristicUuid.equals(OrderType.softReboot.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.softReboot, new BulbCharacteristic(characteristic, OrderType.softReboot));
+                        bulbCharacteristicMap.put(OrderType.softReboot, new BulbCharacteristic(characteristic, OrderType.softReboot));
                         continue;
                     }
                     // iBeacon_mac
                     if (characteristicUuid.equals(OrderType.iBeaconMac.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.iBeaconMac, new BulbCharacteristic(characteristic, OrderType.iBeaconMac));
+                        bulbCharacteristicMap.put(OrderType.iBeaconMac, new BulbCharacteristic(characteristic, OrderType.iBeaconMac));
                         continue;
                     }
                     // overtime
                     if (characteristicUuid.equals(OrderType.overtime.getUuid())) {
-                        mokoCharacteristicMap.put(OrderType.overtime, new BulbCharacteristic(characteristic, OrderType.overtime));
+                        bulbCharacteristicMap.put(OrderType.overtime, new BulbCharacteristic(characteristic, OrderType.overtime));
                         continue;
                     }
                 }
@@ -190,14 +190,14 @@ public class BulbCharacteristicHandler {
 //            List<BluetoothGattCharacteristic> characteristicList = service.getCharacteristics();
 //            for (BluetoothGattCharacteristic characteristic : characteristicList) {
 //                LogModule.i("characteristic uuid:" + characteristic.getUuid().toString());
-//                LogModule.i("characteristic properties:" + MokoUtils.getCharPropertie(characteristic.getProperties()));
+//                LogModule.i("characteristic properties:" + BulbUtils.getCharPropertie(characteristic.getProperties()));
 //                List<BluetoothGattDescriptor> descriptors = characteristic.getDescriptors();
 //                for (BluetoothGattDescriptor descriptor : descriptors) {
 //                    LogModule.i("descriptor uuid:" + descriptor.getUuid().toString());
-//                    LogModule.i("descriptor value:" + MokoUtils.bytesToHexString(descriptor.getValue()));
+//                    LogModule.i("descriptor value:" + BulbUtils.bytesToHexString(descriptor.getValue()));
 //                }
 //            }
         }
-        return mokoCharacteristicMap;
+        return bulbCharacteristicMap;
     }
 }

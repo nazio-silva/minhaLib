@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Formatter;
 
 /**
  * @Date 2017/12/7 0007

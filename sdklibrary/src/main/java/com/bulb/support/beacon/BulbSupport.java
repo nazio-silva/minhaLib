@@ -1,6 +1,7 @@
 package com.bulb.support.beacon;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -11,12 +12,8 @@ import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Message;
 import android.text.TextUtils;
-
-import androidx.annotation.RequiresApi;
-import androidx.core.content.ContextCompat;
 
 import com.bulb.support.beacon.callback.BulbConnStateCallback;
 import com.bulb.support.beacon.callback.BulbOrderTaskCallback;
@@ -45,12 +42,8 @@ import no.nordicsemi.android.support.v18.scanner.BluetoothLeScannerCompat;
 import no.nordicsemi.android.support.v18.scanner.ScanFilter;
 import no.nordicsemi.android.support.v18.scanner.ScanSettings;
 
-/**
- * @Date 2017/12/7 0007
- * @Author wenzheng.liu
- * @Description
- * @ClassPath com.bulb.support.beacon.BulbSupport
- */
+import static androidx.core.content.PermissionChecker.checkSelfPermission;
+
 public class BulbSupport implements BulbResponseCallback {
     public static final int HANDLER_MESSAGE_WHAT_CONNECTED = 1;
     public static final int HANDLER_MESSAGE_WHAT_DISCONNECTED = 2;
@@ -70,7 +63,7 @@ public class BulbSupport implements BulbResponseCallback {
 
     private Context mContext;
 
-    private BulbSupport() {
+    public BulbSupport() {
         //no instance
         mQueue = new LinkedBlockingQueue<>();
     }
@@ -86,13 +79,21 @@ public class BulbSupport implements BulbResponseCallback {
         return INSTANCE;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void init(Context context) {
+
+        System.out.println("BulbSupport init");
+        System.out.println(context);
+
         LogModule.init(context);
         mContext = context;
         mHandler = new ServiceMessageHandler(this);
         final BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+
+        System.out.println("mHandler");
+        System.out.println(mHandler);
+        System.out.println("mBluetoothAdapter");
+        System.out.println(mBluetoothAdapter);
     }
 
     private ServiceMessageHandler mHandler;
@@ -104,7 +105,6 @@ public class BulbSupport implements BulbResponseCallback {
             super(module);
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
         @Override
         protected void handleMessage(BulbSupport module, Message msg) {
             switch (msg.what) {
@@ -147,6 +147,10 @@ public class BulbSupport implements BulbResponseCallback {
      * @Description 蓝牙是否打开
      */
     public boolean isBluetoothOpen() {
+
+        System.out.println("isBluetoothOpen");
+        System.out.println(mBluetoothAdapter.isEnabled());
+
         return mBluetoothAdapter != null && mBluetoothAdapter.isEnabled();
     }
 
@@ -155,33 +159,50 @@ public class BulbSupport implements BulbResponseCallback {
      * @Author wenzheng.liu
      * @Description 是否连接设备
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public boolean isConnDevice(Context context, String address) {
         BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
         int connState = bluetoothManager.getConnectionState(mBluetoothAdapter.getRemoteDevice(address), BluetoothProfile.GATT);
         return connState == BluetoothProfile.STATE_CONNECTED;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void startScanDevice(BulbScanDeviceCallback bulbScanDeviceCallback) {
-        if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            LogModule.i("Beacon");
+
+        try {
+
+            System.out.println("startScanDevice...");
+            System.out.println("startScanDevice PackageManager: " + PackageManager.PERMISSION_GRANTED);
+
+            /*if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                LogModule.i("Comece a escanear os Bulbs");
+            }*/
+
+            final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
+
+            System.out.println("BluetoothLeScannerCompat scanner");
+            System.out.println(scanner);
+
+            ScanSettings settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            List<ScanFilter> filters = Collections.singletonList(new ScanFilter.Builder().build());
+            mBulbLeScanHandler = new BulbLeScanHandler(bulbScanDeviceCallback);
+            scanner.startScan(filters, settings, mBulbLeScanHandler);
+            mBulbScanDeviceCallback = bulbScanDeviceCallback;
+
+            bulbScanDeviceCallback.onStartScan();
+
+        } catch (Exception e) {
+            System.out.println("Erro de exceção");
+            System.out.println(e);
         }
-        final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
-        ScanSettings settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build();
-        List<ScanFilter> filters = Collections.singletonList(new ScanFilter.Builder().build());
-        mBulbLeScanHandler = new BulbLeScanHandler(bulbScanDeviceCallback);
-        scanner.startScan(filters, settings, mBulbLeScanHandler);
-        mBulbScanDeviceCallback = bulbScanDeviceCallback;
-        bulbScanDeviceCallback.onStartScan();
+
     }
 
+    @SuppressLint("WrongConstant")
     public void stopScanDevice() {
         if (mBulbLeScanHandler != null && mBulbScanDeviceCallback != null) {
-            if (ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                LogModule.i("Beacon");
+            if (checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                LogModule.i("Bulb");
             }
             final BluetoothLeScannerCompat scanner = BluetoothLeScannerCompat.getScanner();
             scanner.stopScan(mBulbLeScanHandler);
@@ -191,18 +212,17 @@ public class BulbSupport implements BulbResponseCallback {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void connDevice(final Context context, final String address, final BulbConnStateCallback bulbConnStateCallback) {
         if (TextUtils.isEmpty(address)) {
-            LogModule.i("connDevice: 地址为空");
+            LogModule.i("connDevice: Endereço está vazio");
             return;
         }
         if (!isBluetoothOpen()) {
-            LogModule.i("connDevice: 蓝牙未打开");
+            LogModule.i("connDevice: Bluetooth não está ligado");
             return;
         }
         if (isConnDevice(context, address)) {
-            LogModule.i("connDevice: 设备已连接");
+            LogModule.i("connDevice: Dispositivo conectado");
             return;
         }
         final BulbConnStateHandler gattCallback = BulbConnStateHandler.getInstance();
@@ -215,12 +235,13 @@ public class BulbSupport implements BulbResponseCallback {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    LogModule.i("开始尝试连接");
+                    LogModule.i("Comece a tentar conectar");
                     mBluetoothGatt = (new BleConnectionCompat(context)).connectGatt(device, false, gattCallback);
                 }
             });
         } else {
-            LogModule.i("获取蓝牙设备失败");
+            LogModule.i("\n" +
+                    "Falha ao obter dispositivo Bluetooth");
         }
     }
 
@@ -258,7 +279,6 @@ public class BulbSupport implements BulbResponseCallback {
     ///////////////////////////////////////////////////////////////////////////
     //
     ///////////////////////////////////////////////////////////////////////////
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void sendOrder(OrderTask... orderTasks) {
         if (orderTasks.length == 0) {
             return;
@@ -281,7 +301,6 @@ public class BulbSupport implements BulbResponseCallback {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void executeTask(BulbOrderTaskCallback callback) {
         if (callback != null && mQueue.isEmpty()) {
             callback.onOrderFinish();
@@ -321,7 +340,6 @@ public class BulbSupport implements BulbResponseCallback {
     }
 
     // 发送可监听命令
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void sendNotifyOrder(OrderTask orderTask, final BulbCharacteristic bulbCharacteristic) {
         LogModule.i("app set device notify : " + orderTask.orderType.getName());
         final BluetoothGattDescriptor descriptor = bulbCharacteristic.characteristic.getDescriptor(DESCRIPTOR_UUID_NOTIFY);
@@ -338,7 +356,6 @@ public class BulbSupport implements BulbResponseCallback {
     }
 
     // 发送可写命令
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void sendWriteOrder(OrderTask orderTask, final BulbCharacteristic bulbCharacteristic) {
         LogModule.i("app to device write : " + orderTask.orderType.getName());
         LogModule.i(BulbUtils.bytesToHexString(orderTask.assemble()));
@@ -352,7 +369,6 @@ public class BulbSupport implements BulbResponseCallback {
     }
 
     // 发送可写无应答命令
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void sendWriteNoResponseOrder(OrderTask orderTask, final BulbCharacteristic bulbCharacteristic) {
         LogModule.i("app to device write no response : " + orderTask.orderType.getName());
         LogModule.i(BulbUtils.bytesToHexString(orderTask.assemble()));
@@ -370,7 +386,6 @@ public class BulbSupport implements BulbResponseCallback {
     private void sendReadOrder(OrderTask orderTask, final BulbCharacteristic bulbCharacteristic) {
         LogModule.i("app to device read : " + orderTask.orderType.getName());
         mHandler.post(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void run() {
                 mBluetoothGatt.readCharacteristic(bulbCharacteristic.characteristic);
@@ -379,7 +394,6 @@ public class BulbSupport implements BulbResponseCallback {
     }
 
     // 直接发送命令(升级专用)
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void sendDirectOrder(OrderTask orderTask) {
         final BulbCharacteristic bulbCharacteristic = mCharacteristicMap.get(orderTask.orderType);
         if (bulbCharacteristic == null) {
@@ -401,7 +415,6 @@ public class BulbSupport implements BulbResponseCallback {
     private void orderTimeoutHandler(final OrderTask orderTask) {
         long delayTime = 3000;
         mHandler.postDelayed(new Runnable() {
-            @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
             @Override
             public void run() {
                 if (orderTask.orderStatus != OrderTask.ORDER_STATUS_SUCCESS) {
@@ -414,7 +427,6 @@ public class BulbSupport implements BulbResponseCallback {
         }, delayTime);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onCharacteristicChanged(BluetoothGattCharacteristic characteristic, byte[] value) {
         if (!mQueue.isEmpty()) {
@@ -449,7 +461,6 @@ public class BulbSupport implements BulbResponseCallback {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onCharacteristicWrite(byte[] value) {
         if (mQueue.isEmpty()) {
@@ -474,7 +485,6 @@ public class BulbSupport implements BulbResponseCallback {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onCharacteristicRead(byte[] value) {
         if (mQueue.isEmpty()) {
@@ -507,7 +517,6 @@ public class BulbSupport implements BulbResponseCallback {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onDescriptorWrite() {
         if (mQueue.isEmpty()) {
@@ -520,7 +529,6 @@ public class BulbSupport implements BulbResponseCallback {
         executeTask(orderTask.bulbOrderTaskCallback);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void formatCommonOrder(OrderTask task, byte[] value) {
         task.orderStatus = OrderTask.ORDER_STATUS_SUCCESS;
         mQueue.poll();

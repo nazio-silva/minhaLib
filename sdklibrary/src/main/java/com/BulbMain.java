@@ -1,32 +1,23 @@
 package com;
 
 import android.content.Context;
-import android.os.Build;
 
-import androidx.annotation.RequiresApi;
 import com.bulb.support.beacon.BulbSupport;
-import com.bulbxpro.support.beaconxpro.callback.BulbScanDeviceCallback;
-import com.bulbxpro.support.beaconxpro.entity.DeviceInfo;
-import com.utils.SendEvent;
+import com.bulb.support.beacon.callback.BulbScanDeviceCallback;
+import com.bulb.support.beacon.entity.DeviceInfo;
+
+import static com.bulb.support.beacon.BulbSupport.getInstance;
+
 
 public class BulbMain implements BulbScanDeviceCallback {
 
     private final Context Appcontext;
     //private Promise connectedPromise;
 
+    private Context mContext;
+
     public BulbMain(Context context) {
         this.Appcontext = context;
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void startscan()
-    {
-        BulbSupport.getInstance().startScanDevice((com.bulb.support.beacon.callback.BulbScanDeviceCallback) this.Appcontext);
-    }
-
-    public void stopscan()
-    {
-        BulbSupport.getInstance().stopScanDevice();
     }
 
     public String getName()
@@ -34,12 +25,23 @@ public class BulbMain implements BulbScanDeviceCallback {
         return "BulbMain";
     }
 
+    //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void startscan() {
+        System.out.println("startscan Bulbmain");
+        BulbSupport.getInstance().startScanDevice(BulbMain.this);
+    }
+
+    //@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public void stopscan()
+    {
+        getInstance().stopScanDevice();
+    }
+
     @Override
     public void onStartScan() {
-        System.out.print("scaneando: " + true);
-        System.out.println("Iniciado o scaneamento dos beacons!");
+        System.out.println("onStartScan Bulbmain: ");
+       // SendEvent.emit();
 
-        SendEvent.emit();
     }
 
     @Override
@@ -52,26 +54,15 @@ public class BulbMain implements BulbScanDeviceCallback {
         System.out.println("rssi" + device.rssi );
         //System.out.println("data" + createMapWithDevice(device));
 
-        SendEvent.emit();
+        //SendEvent.emit();
 
     }
 
     @Override
     public void onStopScan() {
         //connectedPromise = null;
-        BulbSupport.getInstance().stopScanDevice();
+        System.out.println("Objeto Bulbmain onStopScan");
+
+        getInstance().stopScanDevice();
     }
-
-    /*private WritableMap createMapWithDevice(DeviceInfo device) {
-
-        WritableMap b = new WritableNativeMap();
-
-        System.out.println("ModelBeaconXPro", beaconxpro.getData(device));
-        System.out.println("ModelBeaconX", beaconx.getData(device));
-        System.out.println("ModelBeacon", beacon.getData(device));
-
-        return b;
-
-    }
-    */
 }

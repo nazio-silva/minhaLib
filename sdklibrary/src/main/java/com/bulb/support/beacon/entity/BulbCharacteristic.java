@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @Date 2017/12/14 0014
  * @Author wenzheng.liu
  * @Description
- * @ClassPath com.moko.support.entity.MokoCharacteristic
+ * @ClassPath com.bulb.support.entity.BulbCharacteristic
  */
 public class BulbCharacteristic implements Serializable {
     public BluetoothGattCharacteristic characteristic;

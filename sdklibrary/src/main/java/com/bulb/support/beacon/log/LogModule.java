@@ -9,7 +9,6 @@ import com.elvishew.xlog.LogLevel;
 import com.elvishew.xlog.XLog;
 import com.elvishew.xlog.flattener.PatternFlattener;
 import com.elvishew.xlog.printer.AndroidPrinter;
-//import com.elvishew.xlog.printer.Printer;
 import com.elvishew.xlog.printer.file.FilePrinter;
 import com.elvishew.xlog.printer.file.naming.ChangelessFileNameGenerator;
 
@@ -27,6 +26,8 @@ public class LogModule {
     private static String PATH_LOGCAT;
 
     public static void init(Context context) {
+
+        System.out.println("LogModule Init: " + context);
         // 初始化Xlog
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             // 优先保存到SD卡中
